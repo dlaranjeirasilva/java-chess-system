@@ -1,16 +1,27 @@
 package chess;
 
 import boardGame.Board;
+import boardGame.Position;
+import chess.pieces.King;
+import chess.pieces.Rook;
 
 public class ChessMatch {
 
 	private Board board;
 
-	// Only the ChessMatch must know the dimension of a chess board, for that reason
-	// we define the ChessMatch constructor with the matrix dimension of 8 x 8 of
-	// the imported board
+	/*
+	 * Only the ChessMatch must know the dimension of a chess board, for that reason
+	 * we define the ChessMatch constructor with the matrix dimension of 8 x 8 of
+	 * the imported board
+	 * 
+	 * As the ChessMatch is called, the constructor will instantiate a board with a
+	 * quadratic matrix of 8 x 8 and also call the initialSetup() to build the ChessPiece
+	 * over the board
+	 */
+
 	public ChessMatch() {
 		board = new Board(8, 8);
+		initialSetup();
 	}
 
 	/*
@@ -30,6 +41,12 @@ public class ChessMatch {
 			}
 		}
 		return mat;
+	}
+
+	private void initialSetup() {
+		board.placePiece(new Rook(board, Color.WHITE), new Position(2, 1));
+		board.placePiece(new King(board, Color.BLACK), new Position(0, 4));
+		board.placePiece(new King(board, Color.WHITE), new Position(7, 4));
 	}
 
 }
