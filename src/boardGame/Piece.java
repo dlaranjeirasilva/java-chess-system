@@ -16,7 +16,7 @@ public class Piece {
 	}
 
 	//Only classes within the same package and subclasses will be able to access the board of a piece
-	//The board musn't be accessed by the chess layer, which means, the board is for internal use of
+	//The board mustn't be accessed by the chess layer, which means, the board is for internal use of
 	//the board layer
 	protected Board getBoard() {
 		return board;
