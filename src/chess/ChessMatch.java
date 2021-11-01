@@ -1,6 +1,8 @@
 package chess;
 
 import boardGame.Board;
+import boardGame.Piece;
+import boardGame.Position;
 import chess.pieces.King;
 import chess.pieces.Rook;
 
@@ -41,7 +43,47 @@ public class ChessMatch {
 		}
 		return mat;
 	}
-
+	
+	public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition) {
+		Position source = sourcePosition.toPosition();
+		Position target = targetPosition.toPosition();
+		
+		validateSourcePosition(source);
+		
+		Piece capturedPiece = makeMove(source, target);
+		return (ChessPiece)capturedPiece;
+	}
+	
+	/*
+	 * Our makeMove(source, target) will need the source position and a target one,
+	 * based on the Chess rules, every time we make a move to capture a piece we must
+	 * remove the piece from its source position, also remove the captured piece from
+	 * its source (which is actually the target of the source position of the moved
+	 * piece) and placePiece(piece, position) in its defined target, after that we
+	 * return the capturedPiece as the result of the movement 
+	*/
+	private Piece makeMove(Position source, Position target) {
+		Piece p = board.removePiece(source);
+		Piece capturedPiece = board.removePiece(target);
+		
+		board.placePiece(p, target);
+		return capturedPiece;
+	}
+	
+	/*
+	 * The thereIsAPiece() method can throw a BoardException, the validateSourcePosition
+	 * throw a ChessException, we can consider that a ChessException can also be considered
+	 * a BoardException, but in this case is an exception specific to the Chess game, to make
+	 * this coherent and simple we will now make our ChessException extends the BoardException,
+	 * instead of extends a RuntimeException, by doing that we guarantee that our ChessException
+	 * will also be seen as a BoardException too
+	*/
+	private void validateSourcePosition(Position position) {
+		if(!board.thereIsAPiece(position)) {
+			throw new ChessException("There is no piece on source position");
+		}
+	}
+	
 	/*
 	 * To our match understands the board position as the board shows it, we create
 	 * a method that gets the input of the player and converts it to a board

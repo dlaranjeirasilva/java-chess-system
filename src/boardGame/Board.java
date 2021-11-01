@@ -78,6 +78,27 @@ public class Board {
 	}
 	
 	/*
+	 * The removePiece(position) method will test if the piece is in inputed position
+	 * if it isn't, returns null, although if the piece is actually in the inputed data
+	 * an auxiliary variable will store a null information to return and the pieces matrix
+	 * will determinate the position informed also as null
+	*/
+	public Piece removePiece(Position position) {
+		if(!positionExists(position)) {
+			throw new BoardException("Position not on the board");
+		}
+		
+		if(piece(position) == null) {
+			return null;
+		}
+		
+		Piece aux = piece(position);
+		aux.position = null;
+		pieces[position.getRow()][position.getColumn()] = null;
+		return aux;
+	}
+	
+	/*
 	 * The positionExists(int row, int column) will be an auxiliary method to test if
 	 * the position is inside the board, for that we test if the row is greater than
 	 * 0 and less than row quantity defined in rows attribute, the same logic is applied
