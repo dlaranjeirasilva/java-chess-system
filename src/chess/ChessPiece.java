@@ -15,7 +15,9 @@ public class ChessPiece extends Piece {
 	public Color getColor() {
 		return color;
 	}
-
-		
 	
+	/*
+	 * As we are building a console based system, the pieces will have an override in the
+	 * toString() to print the initial letter of the piece in the board
+	 */
 }
