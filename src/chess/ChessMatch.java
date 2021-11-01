@@ -1,7 +1,6 @@
 package chess;
 
 import boardGame.Board;
-import boardGame.Position;
 import chess.pieces.King;
 import chess.pieces.Rook;
 
@@ -15,8 +14,8 @@ public class ChessMatch {
 	 * the imported board
 	 * 
 	 * As the ChessMatch is called, the constructor will instantiate a board with a
-	 * quadratic matrix of 8 x 8 and also call the initialSetup() to build the ChessPiece
-	 * over the board
+	 * quadratic matrix of 8 x 8 and also call the initialSetup() to build the
+	 * ChessPiece over the board
 	 */
 
 	public ChessMatch() {
@@ -43,10 +42,19 @@ public class ChessMatch {
 		return mat;
 	}
 
+	/*
+	 * To our match understands the board position as the board shows it, we create
+	 * a method that gets the input of the player and converts it to a board
+	 * position with the toPosition() method created within the ChessPosition Class
+	 */
+	private void placeNewPiece(char column, int row, ChessPiece piece) {
+		board.placePiece(piece, new ChessPosition(column, row).toPosition());
+	}
+
 	private void initialSetup() {
-		board.placePiece(new Rook(board, Color.WHITE), new Position(2, 1));
-		board.placePiece(new King(board, Color.BLACK), new Position(0, 4));
-		board.placePiece(new King(board, Color.WHITE), new Position(7, 4));
+		placeNewPiece('b', 6, new Rook(board, Color.WHITE));
+		placeNewPiece('e', 8, new King(board, Color.BLACK));
+		placeNewPiece('e', 1, new King(board, Color.WHITE));
 	}
 
 }
