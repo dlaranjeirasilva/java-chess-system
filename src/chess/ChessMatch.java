@@ -77,10 +77,19 @@ public class ChessMatch {
 	 * this coherent and simple we will now make our ChessException extends the BoardException,
 	 * instead of extends a RuntimeException, by doing that we guarantee that our ChessException
 	 * will also be seen as a BoardException too
+	 * 
+	 * As we are starting to implement the pieces movements, our position validation must consider
+	 * the case if the piece existence is valid but also if the piece selected has possible moves
+	 * to perform, this is where the board checks the piece position and confirms if isn't there a
+	 * movement to happen "!board.piece(position).isThereAnyPossibleMove()"
 	*/
 	private void validateSourcePosition(Position position) {
 		if(!board.thereIsAPiece(position)) {
 			throw new ChessException("There is no piece on source position");
+		}
+		
+		if(!board.piece(position).isThereAnyPossibleMove()) {
+			throw new ChessException("There is no possible moves for the chosen piece");
 		}
 	}
 	
