@@ -31,6 +31,14 @@ public class UI {
 	public static final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
 	public static final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
 
+// 	Credit to clearScreen() in console to:
+// 	https://stackoverflow.com/questions/2979383/java-clear-the-console
+	
+	public static void clearScreen() {
+		System.out.print("\033[H\033[2J");
+		System.out.flush();
+	}
+
 	/*
 	 * Our readChessPosition(Scanner) will convert the input receive by the user
 	 * into a char for the column part and using the substring() method we will
