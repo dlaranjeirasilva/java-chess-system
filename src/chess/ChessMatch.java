@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import boardGame.Board;
 import boardGame.Piece;
 import boardGame.Position;
@@ -11,6 +14,9 @@ public class ChessMatch {
 	private Integer turn;
 	private Color currentPlayer;
 	private Board board;
+	
+	private List<Piece> piecesOnTheBoard = new ArrayList<Piece>();
+	private List<Piece> capturedPieces = new ArrayList<Piece>();
 
 	/*
 	 * Only the ChessMatch must know the dimension of a chess board, for that reason
@@ -104,12 +110,21 @@ public class ChessMatch {
 	 * piece from its source (which is actually the target of the source position of
 	 * the moved piece) and placePiece(piece, position) in its defined target, after
 	 * that we return the capturedPiece as the result of the movement
+	 * 
+	 * Now with the lists, we can remove the piece on the board and consider it as a
+	 * captured one on our printMatch() within the UI
 	 */
 	private Piece makeMove(Position source, Position target) {
 		Piece p = board.removePiece(source);
 		Piece capturedPiece = board.removePiece(target);
 
 		board.placePiece(p, target);
+		
+		if(capturedPiece != null) {
+			piecesOnTheBoard.remove(capturedPiece);
+			capturedPieces.add(capturedPiece);
+		}
+		
 		return capturedPiece;
 	}
 
@@ -170,10 +185,14 @@ public class ChessMatch {
 	 * To our match understands the board position as the board shows it, we create
 	 * a method that gets the input of the player and converts it to a board
 	 * position with the toPosition() method created within the ChessPosition Class
+	 * 
+	 * In addition, our list of pieces on the board will also receive the information
+	 * of the piece and populate our piece control
 	 */
 
 	private void placeNewPiece(char column, int row, ChessPiece piece) {
 		board.placePiece(piece, new ChessPosition(column, row).toPosition());
+		piecesOnTheBoard.add(piece);
 	}
 
 	private void initialSetup() {
