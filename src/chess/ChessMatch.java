@@ -43,6 +43,20 @@ public class ChessMatch {
 		}
 		return mat;
 	}
+	
+	/*
+	 * The possibleMoves(source) matrix method will grant us the ability to highlight
+	 * the valid movements of our pieces based on its source, so that our UI become
+	 * more user friendly and more dynamic
+	*/
+	public boolean[][] possibleMoves(ChessPosition sourcePosition) {
+		Position position = sourcePosition.toPosition();
+		
+		validateSourcePosition(position);
+		
+		return board.piece(position).possibleMoves();
+		
+	}
 
 	/*
 	 * To perform a chess movement, it is necessary to validate the existence of

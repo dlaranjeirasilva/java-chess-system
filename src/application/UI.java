@@ -56,23 +56,55 @@ public class UI {
 			throw new InputMismatchException("Error reading ChessPosition. Valid values are from a1 to h8");
 		}
 	}
-
+	
+	/*
+	 * In case of our board have no pieces selected by the players, our background
+	 * will remain uncolored as a default
+	 */
 	public static void printBoard(ChessPiece[][] pieces) {
 		for (int i = 0; i < pieces.length; i++) {
 			System.out.print((8 - i) + " ");
 			for (int j = 0; j < pieces.length; j++) {
-				printPiece(pieces[i][j]);
+				printPiece(pieces[i][j], false);
+			}
+			System.out.println();
+		}
+		System.out.println("  a b c d e f g h");
+	}
+	
+	/*
+	 * The printBoard is overloaded with a boolean parameter to consider the action
+	 * of possible movements, and recognizing the possible path of the source piece
+	 * the method will track it for the player by coloring it
+	 * 
+	 * There is no cheat here, it only defines the route that the piece can move, it
+	 * doesn't suggests any strategic move
+	 */
+	public static void printBoard(ChessPiece[][] pieces, boolean[][] possibleMoves) {
+		for (int i = 0; i < pieces.length; i++) {
+			System.out.print((8 - i) + " ");
+			for (int j = 0; j < pieces.length; j++) {
+				printPiece(pieces[i][j], possibleMoves[i][j]);
 			}
 			System.out.println();
 		}
 		System.out.println("  a b c d e f g h");
 	}
 
-	// The method printPiece is an auxiliary method to print a single piece, it will
-	// be responsible to populate the board, and to color it correctly
-	private static void printPiece(ChessPiece piece) {
+	/*
+	 * The method printPiece is an auxiliary method to print a single piece, it will
+	 * be responsible to populate the board, and to color it correctly
+	 * 
+	 * Considering that we want to highlight the path of our pieces based on its source
+	 * our printPiece will now consider the existence of the background, and color it
+	 * in case of a true statement
+	 */ 
+	private static void printPiece(ChessPiece piece, boolean background) {
+		if(background) {
+			System.out.print(ANSI_BLUE_BACKGROUND);
+		}
 		if (piece == null) {
-			System.out.print("-");
+			System.out.print("-" + ANSI_RESET);
 		} else {
 			if (piece.getColor() == Color.WHITE) {
 				System.out.print(ANSI_WHITE + piece + ANSI_RESET);
