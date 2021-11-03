@@ -8,6 +8,8 @@ import chess.pieces.Rook;
 
 public class ChessMatch {
 
+	private Integer turn;
+	private Color currentPlayer;
 	private Board board;
 
 	/*
@@ -18,11 +20,24 @@ public class ChessMatch {
 	 * As the ChessMatch is called, the constructor will instantiate a board with a
 	 * quadratic matrix of 8 x 8 and also call the initialSetup() to build the
 	 * ChessPiece over the board
+	 * 
+	 * We now consider the player switching, and for that we define the turn that of
+	 * course starts by turn 1, and in the chess match, the Whites always starts
 	 */
 
 	public ChessMatch() {
 		board = new Board(8, 8);
+		turn = 1;
+		currentPlayer = Color.WHITE;
 		initialSetup();
+	}
+
+	public Integer getTurn() {
+		return turn;
+	}
+
+	public Color getCurrentPlayer() {
+		return currentPlayer;
 	}
 
 	/*
@@ -43,19 +58,19 @@ public class ChessMatch {
 		}
 		return mat;
 	}
-	
+
 	/*
-	 * The possibleMoves(source) matrix method will grant us the ability to highlight
-	 * the valid movements of our pieces based on its source, so that our UI become
-	 * more user friendly and more dynamic
-	*/
+	 * The possibleMoves(source) matrix method will grant us the ability to
+	 * highlight the valid movements of our pieces based on its source, so that our
+	 * UI become more user friendly and more dynamic
+	 */
 	public boolean[][] possibleMoves(ChessPosition sourcePosition) {
 		Position position = sourcePosition.toPosition();
-		
+
 		validateSourcePosition(position);
-		
+
 		return board.piece(position).possibleMoves();
-		
+
 	}
 
 	/*
@@ -65,6 +80,8 @@ public class ChessMatch {
 	 * true, it is necessary to validate if the target position, in relation with
 	 * the source, is valid, in case of a true statement, the makeMove(source,
 	 * target) takes place
+	 * 
+	 * After a movement takes place, the player switches
 	 */
 	public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition) {
 		Position source = sourcePosition.toPosition();
@@ -74,6 +91,9 @@ public class ChessMatch {
 		validateTargetPosition(source, target);
 
 		Piece capturedPiece = makeMove(source, target);
+		
+		nextTurn();
+		
 		return (ChessPiece) capturedPiece;
 	}
 
@@ -107,10 +127,19 @@ public class ChessMatch {
 	 * selected has possible moves to perform, this is where the board checks the
 	 * piece position and confirms if isn't there a movement to happen
 	 * "!board.piece(position).isThereAnyPossibleMove()"
+	 * 
+	 * Our validation must consider if the current player is not trying to move an
+	 * opponent's piece, which of course would brake the rules, for that we now
+	 * implement another ChessExcepetion considering that the player can only select
+	 * the source of its own pieces
 	 */
 	private void validateSourcePosition(Position position) {
 		if (!board.thereIsAPiece(position)) {
 			throw new ChessException("There is no piece on source position");
+		}
+		
+		if(currentPlayer != ((ChessPiece)board.piece(position)).getColor()) {
+			throw new ChessException(currentPlayer + " you can't select an opponent's piece");
 		}
 
 		if (!board.piece(position).isThereAnyPossibleMove()) {
@@ -126,6 +155,15 @@ public class ChessMatch {
 		if (!board.piece(source).possibleMove(target)) {
 			throw new ChessException("The chosen piece can't move to target position");
 		}
+	}
+	
+	/*
+	 * Simple implementation of a player switching, considering a ternary condition,
+	 * cleaner and simpler
+	*/
+	private void nextTurn() {
+		turn++;
+		currentPlayer = (currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE;
 	}
 
 	/*

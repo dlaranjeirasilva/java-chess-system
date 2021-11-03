@@ -3,6 +3,7 @@ package application;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import chess.ChessMatch;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import chess.Color;
@@ -33,7 +34,7 @@ public class UI {
 
 // 	Credit to clearScreen() in console to:
 // 	https://stackoverflow.com/questions/2979383/java-clear-the-console
-	
+
 	public static void clearScreen() {
 		System.out.print("\033[H\033[2J");
 		System.out.flush();
@@ -41,11 +42,11 @@ public class UI {
 
 	/*
 	 * Our readChessPosition(Scanner) will convert the input receive by the user
-	 * into a char for the column part and using the substring() method we will
-	 * be able to form a ChessPosition to be informed to the application,
-	 * in case of a input mismatch sent by the user our method is encapsulated
-	 * within a try/catch block to treat this kind of erratic input
-	*/
+	 * into a char for the column part and using the substring() method we will be
+	 * able to form a ChessPosition to be informed to the application, in case of a
+	 * input mismatch sent by the user our method is encapsulated within a try/catch
+	 * block to treat this kind of erratic input
+	 */
 	public static ChessPosition readChessPosition(Scanner sc) {
 		try {
 			String s = sc.nextLine();
@@ -56,7 +57,18 @@ public class UI {
 			throw new InputMismatchException("Error reading ChessPosition. Valid values are from a1 to h8");
 		}
 	}
-	
+
+	/*
+	 * Printing the match will guide the contenders along, making it easier to know
+	 * whose turn is and which number of turns already happened
+	 */
+	public static void printMatch(ChessMatch chessMatch) {
+		printBoard(chessMatch.getPieces());
+		System.out.println();
+		System.out.println("Turn : " + chessMatch.getTurn());
+		System.out.println("Waiting player: " + chessMatch.getCurrentPlayer());
+	}
+
 	/*
 	 * In case of our board have no pieces selected by the players, our background
 	 * will remain uncolored as a default
@@ -71,7 +83,7 @@ public class UI {
 		}
 		System.out.println("  a b c d e f g h");
 	}
-	
+
 	/*
 	 * The printBoard is overloaded with a boolean parameter to consider the action
 	 * of possible movements, and recognizing the possible path of the source piece
@@ -95,12 +107,12 @@ public class UI {
 	 * The method printPiece is an auxiliary method to print a single piece, it will
 	 * be responsible to populate the board, and to color it correctly
 	 * 
-	 * Considering that we want to highlight the path of our pieces based on its source
-	 * our printPiece will now consider the existence of the background, and color it
-	 * in case of a true statement
-	 */ 
+	 * Considering that we want to highlight the path of our pieces based on its
+	 * source our printPiece will now consider the existence of the background, and
+	 * color it in case of a true statement
+	 */
 	private static void printPiece(ChessPiece piece, boolean background) {
-		if(background) {
+		if (background) {
 			System.out.print(ANSI_BLUE_BACKGROUND);
 		}
 		if (piece == null) {
