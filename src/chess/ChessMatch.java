@@ -43,62 +43,83 @@ public class ChessMatch {
 		}
 		return mat;
 	}
-	
+
+	/*
+	 * To perform a chess movement, it is necessary to validate the existence of
+	 * piece in the source position and if the piece exists, it must validate if
+	 * there is any possible movement for that piece. In case of both tests return
+	 * true, it is necessary to validate if the target position, in relation with
+	 * the source, is valid, in case of a true statement, the makeMove(source,
+	 * target) takes place
+	 */
 	public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition) {
 		Position source = sourcePosition.toPosition();
 		Position target = targetPosition.toPosition();
-		
+
 		validateSourcePosition(source);
-		
+		validateTargetPosition(source, target);
+
 		Piece capturedPiece = makeMove(source, target);
-		return (ChessPiece)capturedPiece;
+		return (ChessPiece) capturedPiece;
 	}
-	
+
 	/*
 	 * Our makeMove(source, target) will need the source position and a target one,
-	 * based on the Chess rules, every time we make a move to capture a piece we must
-	 * remove the piece from its source position, also remove the captured piece from
-	 * its source (which is actually the target of the source position of the moved
-	 * piece) and placePiece(piece, position) in its defined target, after that we
-	 * return the capturedPiece as the result of the movement 
-	*/
+	 * based on the Chess rules, every time we make a move to capture a piece we
+	 * must remove the piece from its source position, also remove the captured
+	 * piece from its source (which is actually the target of the source position of
+	 * the moved piece) and placePiece(piece, position) in its defined target, after
+	 * that we return the capturedPiece as the result of the movement
+	 */
 	private Piece makeMove(Position source, Position target) {
 		Piece p = board.removePiece(source);
 		Piece capturedPiece = board.removePiece(target);
-		
+
 		board.placePiece(p, target);
 		return capturedPiece;
 	}
-	
+
 	/*
-	 * The thereIsAPiece() method can throw a BoardException, the validateSourcePosition
-	 * throw a ChessException, we can consider that a ChessException can also be considered
-	 * a BoardException, but in this case is an exception specific to the Chess game, to make
-	 * this coherent and simple we will now make our ChessException extends the BoardException,
-	 * instead of extends a RuntimeException, by doing that we guarantee that our ChessException
-	 * will also be seen as a BoardException too
+	 * The thereIsAPiece() method can throw a BoardException, the
+	 * validateSourcePosition throw a ChessException, we can consider that a
+	 * ChessException can also be considered a BoardException, but in this case is
+	 * an exception specific to the Chess game, to make this coherent and simple we
+	 * will now make our ChessException extends the BoardException, instead of
+	 * extends a RuntimeException, by doing that we guarantee that our
+	 * ChessException will also be seen as a BoardException too
 	 * 
-	 * As we are starting to implement the pieces movements, our position validation must consider
-	 * the case if the piece existence is valid but also if the piece selected has possible moves
-	 * to perform, this is where the board checks the piece position and confirms if isn't there a
-	 * movement to happen "!board.piece(position).isThereAnyPossibleMove()"
-	*/
+	 * As we are starting to implement the pieces movements, our position validation
+	 * must consider the case if the piece existence is valid but also if the piece
+	 * selected has possible moves to perform, this is where the board checks the
+	 * piece position and confirms if isn't there a movement to happen
+	 * "!board.piece(position).isThereAnyPossibleMove()"
+	 */
 	private void validateSourcePosition(Position position) {
-		if(!board.thereIsAPiece(position)) {
+		if (!board.thereIsAPiece(position)) {
 			throw new ChessException("There is no piece on source position");
 		}
-		
-		if(!board.piece(position).isThereAnyPossibleMove()) {
+
+		if (!board.piece(position).isThereAnyPossibleMove()) {
 			throw new ChessException("There is no possible moves for the chosen piece");
 		}
 	}
-	
+
+	/*
+	 * To validate a target position, we check if the piece position (source) within
+	 * the defined board have a possibility to move to its target
+	 */
+	private void validateTargetPosition(Position source, Position target) {
+		if (!board.piece(source).possibleMove(target)) {
+			throw new ChessException("The chosen piece can't move to target position");
+		}
+	}
+
 	/*
 	 * To our match understands the board position as the board shows it, we create
 	 * a method that gets the input of the player and converts it to a board
 	 * position with the toPosition() method created within the ChessPosition Class
 	 */
-	
+
 	private void placeNewPiece(char column, int row, ChessPiece piece) {
 		board.placePiece(piece, new ChessPosition(column, row).toPosition());
 	}
@@ -110,7 +131,7 @@ public class ChessMatch {
 		placeNewPiece('e', 2, new Rook(board, Color.WHITE));
 		placeNewPiece('e', 1, new Rook(board, Color.WHITE));
 		placeNewPiece('d', 1, new King(board, Color.WHITE));
-		
+
 		placeNewPiece('c', 7, new Rook(board, Color.BLACK));
 		placeNewPiece('c', 8, new Rook(board, Color.BLACK));
 		placeNewPiece('d', 7, new Rook(board, Color.BLACK));

@@ -2,6 +2,7 @@ package chess;
 
 import boardGame.Board;
 import boardGame.Piece;
+import boardGame.Position;
 
 /*
  * As we defined the Piece Class as an abstract one, the ChessPiece is obliged to
@@ -27,5 +28,15 @@ public abstract class ChessPiece extends Piece {
 	/*
 	 * As we are building a console based system, the pieces will have an override in the
 	 * toString() to print the initial letter of the piece in the board
+	 * 
+	 * The isThereOpponentPiece() will test if the target piece position is not null and
+	 * also if the color of it is different of the source piece position color, if both
+	 * of these conditions are satisfied, the method returns true, so it is an opponent
+	 * piece
 	 */
+	
+	protected boolean isThereOpponentPiece(Position position) {
+		ChessPiece p = (ChessPiece)getBoard().piece(position);
+		return p != null && p.getColor() != color;
+	}
 }
