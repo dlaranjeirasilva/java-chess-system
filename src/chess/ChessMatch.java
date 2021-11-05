@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import boardGame.Board;
 import boardGame.Piece;
@@ -14,6 +15,7 @@ public class ChessMatch {
 	private Integer turn;
 	private Color currentPlayer;
 	private Board board;
+	private Boolean check;
 	
 	private List<Piece> piecesOnTheBoard = new ArrayList<Piece>();
 	private List<Piece> capturedPieces = new ArrayList<Piece>();
@@ -35,6 +37,7 @@ public class ChessMatch {
 		board = new Board(8, 8);
 		turn = 1;
 		currentPlayer = Color.WHITE;
+		check = false;
 		initialSetup();
 	}
 
@@ -44,6 +47,10 @@ public class ChessMatch {
 
 	public Color getCurrentPlayer() {
 		return currentPlayer;
+	}
+	
+	public Boolean getCheck() {
+		return check;
 	}
 
 	/*
@@ -88,6 +95,11 @@ public class ChessMatch {
 	 * target) takes place
 	 * 
 	 * After a movement takes place, the player switches
+	 * 
+	 * With the testCheck() implemented, now we update the performChessMove() in
+	 * order to test if the movement made caused the match to be in a Check State,
+	 * also, we consider if the currentPlayer didn't put himself under Check State,
+	 * in case of it, the movement must be undone
 	 */
 	public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition) {
 		Position source = sourcePosition.toPosition();
@@ -97,6 +109,13 @@ public class ChessMatch {
 		validateTargetPosition(source, target);
 
 		Piece capturedPiece = makeMove(source, target);
+		
+		if(testCheck(currentPlayer)) {
+			undoMove(source, target, capturedPiece);
+			throw new ChessException("You can't put yourself under check");
+		}
+		
+		check = (testCheck(opponent(currentPlayer))) ? true : false;
 		
 		nextTurn();
 		
@@ -126,6 +145,22 @@ public class ChessMatch {
 		}
 		
 		return capturedPiece;
+	}
+	
+	/*
+	 * The undoMove() will take action whenever a player make an invalid move, for
+	 * instance, put itself under CHECK
+	*/
+	private void undoMove(Position source, Position target, Piece capturedPiece) {
+		Piece p = board.removePiece(target);
+		
+		board.placePiece(p, source);
+		
+		if(capturedPiece != null) {
+			board.placePiece(capturedPiece, target);
+			capturedPieces.remove(capturedPiece);
+			piecesOnTheBoard.add(capturedPiece);
+		}
 	}
 
 	/*
@@ -181,6 +216,56 @@ public class ChessMatch {
 		currentPlayer = (currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE;
 	}
 
+	/*
+	 * To create the CHECK logic, a sum of auxiliary methods and properties were
+	 * considered, as it shows:
+	 * private Boolean check 	- Will determinate if a match is in check or not
+	 * 						
+	 * opponent(color) 	- The objective is to return the color of the opponent's
+	 * 					pieces in general
+	 * 
+	 * king(color) 		- The objective is to return the king of the opponent
+	 * 					color
+	 * 
+	 * testCheck(color)	- The method will check the position of the player's
+	 * 					king and verify if any of the opponent's pieces can move
+	 * 					towards the currentPlayer's King
+	*/
+	private Color opponent(Color color) {
+		return (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
+	}
+	
+	private ChessPiece king(Color color) {
+		List<Piece> list = 	piecesOnTheBoard.stream()
+							.filter(x -> ((ChessPiece)x).getColor() == color)
+							.collect(Collectors.toList());
+		
+		for(Piece p : list) {
+			if(p instanceof King) {
+				return (ChessPiece)p;
+			}
+		}
+		/*
+		 * This kind of exception MUST NEVER happen, although it is necessary to throw
+		 * it to prevent application crash
+		 */
+		throw new IllegalStateException("There is no " + color + " king on the board");
+	}
+	
+	private boolean testCheck(Color color) {
+		Position kingPosition = king(color).getChessPosition().toPosition();
+		List<Piece> opponentPieces =	piecesOnTheBoard.stream()
+										.filter(x -> ((ChessPiece)x).getColor() == opponent(color))
+										.collect(Collectors.toList());
+		for(Piece p : opponentPieces) {
+			boolean[][] mat = p.possibleMoves();
+			if(mat[kingPosition.getRow()][kingPosition.getColumn()]) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/*
 	 * To our match understands the board position as the board shows it, we create
 	 * a method that gets the input of the player and converts it to a board

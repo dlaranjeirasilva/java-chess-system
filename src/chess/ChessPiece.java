@@ -25,6 +25,10 @@ public abstract class ChessPiece extends Piece {
 		return color;
 	}
 	
+	public ChessPosition getChessPosition() {
+		return ChessPosition.fromPosition(position);
+	}
+	
 	/*
 	 * As we are building a console based system, the pieces will have an override in the
 	 * toString() to print the initial letter of the piece in the board
