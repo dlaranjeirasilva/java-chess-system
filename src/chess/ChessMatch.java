@@ -16,6 +16,7 @@ public class ChessMatch {
 	private Color currentPlayer;
 	private Board board;
 	private Boolean check;
+	private Boolean checkMate;
 	
 	private List<Piece> piecesOnTheBoard = new ArrayList<Piece>();
 	private List<Piece> capturedPieces = new ArrayList<Piece>();
@@ -38,6 +39,7 @@ public class ChessMatch {
 		turn = 1;
 		currentPlayer = Color.WHITE;
 		check = false;
+		checkMate = false;
 		initialSetup();
 	}
 
@@ -51,6 +53,10 @@ public class ChessMatch {
 	
 	public Boolean getCheck() {
 		return check;
+	}
+	
+	public Boolean getCheckMate() {
+		return checkMate;
 	}
 
 	/*
@@ -117,7 +123,11 @@ public class ChessMatch {
 		
 		check = (testCheck(opponent(currentPlayer))) ? true : false;
 		
-		nextTurn();
+		if(testCheckMate(opponent(currentPlayer))) {
+			checkMate = true;
+		} else {
+			nextTurn();			
+		}
 		
 		return (ChessPiece) capturedPiece;
 	}
@@ -266,6 +276,52 @@ public class ChessMatch {
 		return false;
 	}
 	
+	private boolean testCheckMate(Color color) {
+		//First test if it isn't in CHECK state
+		if(!testCheck(color)) {
+			return false;
+		}
+		
+		//Gather all pieces of the player's color in the board
+		List<Piece> list =	 piecesOnTheBoard.stream()
+							.filter(x -> ((ChessPiece)x).getColor() == color)
+							.collect(Collectors.toList());
+		
+		//Now go through all pieces in the list
+		for(Piece p : list) {
+			//All possibleMoves() of p in the matrix
+			boolean[][] mat = p.possibleMoves();
+			//Go through all lines
+			for(int i = 0; i<board.getRows(); i++) {
+				//Go through all columns
+				for(int j = 0; j<board.getColumns(); j++) {
+					//Is the position in the board a possibleMove()?
+					if(mat[i][j]) {
+						//If yes:
+						//Gather the source and target positions
+						Position source = ((ChessPiece)p).getChessPosition().toPosition();
+						Position target = new Position(i, j);
+						
+						//Make the move to test if the move put the player in CHECK state
+						Piece capturedPiece = makeMove(source, target);
+						boolean testCheck = testCheck(color);
+						//Undo the move after the test
+						undoMove(source, target, capturedPiece);
+						//Does this possibleMove() removes the player's King of CHECK state?
+						if(!testCheck) {
+							//If yes:
+							//CHECK state vanishes
+							return false;
+						}
+					}
+				}
+			}
+		}
+		//If my loop ends, and no possibleMove() removes the CHECK state, it is CHECK MATE!
+		//So, returns true
+		return true;
+	}
+	
 	/*
 	 * To our match understands the board position as the board shows it, we create
 	 * a method that gets the input of the player and converts it to a board
@@ -281,19 +337,12 @@ public class ChessMatch {
 	}
 
 	private void initialSetup() {
-		placeNewPiece('c', 1, new Rook(board, Color.WHITE));
-		placeNewPiece('c', 2, new Rook(board, Color.WHITE));
-		placeNewPiece('d', 2, new Rook(board, Color.WHITE));
-		placeNewPiece('e', 2, new Rook(board, Color.WHITE));
-		placeNewPiece('e', 1, new Rook(board, Color.WHITE));
-		placeNewPiece('d', 1, new King(board, Color.WHITE));
+		placeNewPiece('h', 7, new Rook(board, Color.WHITE));
+		placeNewPiece('d', 1, new Rook(board, Color.WHITE));
+		placeNewPiece('e', 1, new King(board, Color.WHITE));
 
-		placeNewPiece('c', 7, new Rook(board, Color.BLACK));
-		placeNewPiece('c', 8, new Rook(board, Color.BLACK));
-		placeNewPiece('d', 7, new Rook(board, Color.BLACK));
-		placeNewPiece('e', 7, new Rook(board, Color.BLACK));
-		placeNewPiece('e', 8, new Rook(board, Color.BLACK));
-		placeNewPiece('d', 8, new King(board, Color.BLACK));
+		placeNewPiece('b', 8, new Rook(board, Color.BLACK));
+		placeNewPiece('a', 8, new King(board, Color.BLACK));
 	}
 
 }
