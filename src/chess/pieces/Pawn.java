@@ -2,13 +2,18 @@ package chess.pieces;
 
 import boardGame.Board;
 import boardGame.Position;
+import chess.ChessMatch;
 import chess.ChessPiece;
 import chess.Color;
 
 public class Pawn extends ChessPiece {
+	
+	//To check the en passant conditions, the Pawn must have access to the ChessMatch
+	private ChessMatch chessMatch;
 
-	public Pawn(Board board, Color color) {
+	public Pawn(Board board, Color color, ChessMatch chessMatch) {
 		super(board, color);
+		this.chessMatch = chessMatch;
 	}
 	
 	@Override
@@ -52,6 +57,23 @@ public class Pawn extends ChessPiece {
 			if (getBoard().positionExists(p) && isThereOpponentPiece(p)) {
 				mat[p.getRow()][p.getColumn()] = true;
 			}
+			
+			//#Special move - En Passant (Whites)
+			if(position.getRow() == 3) {
+				Position left = new Position(position.getRow(), position.getColumn() - 1);
+				//Check if is there a position on the left, if is there an opponent and if the
+				//opponent is with the property enPassantVulnerable as true
+				if(getBoard().positionExists(left) && isThereOpponentPiece(left) && getBoard().piece(left) == chessMatch.getEnPassantVulnerable()) {
+					mat[left.getRow() - 1][left.getColumn()] = true;
+				}
+				Position right = new Position(position.getRow(), position.getColumn() + 1);
+				//Check if is there a position on the right, if is there an opponent and if the
+				//opponent is with the property enPassantVulnerable as true
+				if(getBoard().positionExists(right) && isThereOpponentPiece(right) && getBoard().piece(right) == chessMatch.getEnPassantVulnerable()) {
+					mat[right.getRow() - 1][right.getColumn()] = true;
+				}
+			}
+			
 		} else {
 			// Black Pawn Movement Logic
 			p.setValues(position.getRow() + 1, position.getColumn());
@@ -78,6 +100,23 @@ public class Pawn extends ChessPiece {
 			if (getBoard().positionExists(p) && isThereOpponentPiece(p)) {
 				mat[p.getRow()][p.getColumn()] = true;
 			}
+			
+			//#Special move - En Passant (Blacks)
+			if(position.getRow() == 4) {
+				Position left = new Position(position.getRow(), position.getColumn() - 1);
+				//Check if is there a position on the left, if is there an opponent and if the
+				//opponent is with the property enPassantVulnerable as true
+				if(getBoard().positionExists(left) && isThereOpponentPiece(left) && getBoard().piece(left) == chessMatch.getEnPassantVulnerable()) {
+					mat[left.getRow() + 1][left.getColumn()] = true;
+				}
+				Position right = new Position(position.getRow(), position.getColumn() + 1);
+				//Check if is there a position on the right, if is there an opponent and if the
+				//opponent is with the property enPassantVulnerable as true
+				if(getBoard().positionExists(right) && isThereOpponentPiece(right) && getBoard().piece(right) == chessMatch.getEnPassantVulnerable()) {
+					mat[right.getRow() + 1][right.getColumn()] = true;
+				}
+			}
+			
 		}
 
 		return mat;
